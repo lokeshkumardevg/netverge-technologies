@@ -9,6 +9,7 @@ import { MessagesModule } from './messages/messages.module';
 import { UploadModule } from './upload/upload.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { SeedModule } from './seed/seed.module';
+import { ChatbotModule } from './chatbot/chatbot.module'; // [CHATBOT]
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { SeedModule } from './seed/seed.module';
     UploadModule,
     DashboardModule,
     SeedModule,
+    ChatbotModule,
   ],
 })
 export class AppModule {}

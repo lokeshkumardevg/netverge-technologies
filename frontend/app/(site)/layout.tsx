@@ -1,6 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { get } from '@/lib/api';
+import ChatWidget from '@/components/chatbot/ChatWidget'; // [CHATBOT]
 
 export const dynamic = 'force-dynamic';
 
@@ -11,6 +12,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <Navbar settings={settings} />
       <main>{children}</main>
       <Footer settings={settings} services={services} />
+      <ChatWidget /> {/* [CHATBOT] */}
     </>
   );
 }
