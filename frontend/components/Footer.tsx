@@ -110,7 +110,7 @@ export default function Footer({
             )}
             {!social.linkedin && !(social.x || social.twitter) && !social.facebook && !social.instagram && (
               <a
-                href="https://linkedin.com"
+                href="https://www.linkedin.com/in/vineet-mohan-8650674"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="LinkedIn"
@@ -201,6 +201,21 @@ export default function Footer({
             Terms &amp; Conditions
           </Link>
         </div>
+      </div>
+
+      {/* Developer credit */}
+      <div className="border-t border-white/5">
+        <p className="container-x py-4 text-center text-xs text-slate-500">
+          Developed by{' '}
+          <a
+            href="https://wheedletechnologies.ai/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-slate-400 hover:text-[#FF6B00] transition-colors"
+          >
+            Wheedle Technologies
+          </a>
+        </p>
       </div>
     </footer>
   );

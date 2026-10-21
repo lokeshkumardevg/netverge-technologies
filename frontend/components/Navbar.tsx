@@ -3,8 +3,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { Menu, X } from 'lucide-react';
-import { img } from '@/lib/api';
-import NetVergeLogo from './NetVergeLogo';
+
+// White NetVerge logo (transparent PNG) -> place the file in /public
+const LOGO_SRC = '/logo_.png';
 
 const links = [
   ['Home', '/'],
@@ -77,11 +78,11 @@ export default function Navbar({ settings }: { settings?: any } = {}) {
   return (
     <>
       {/* Navbar wrapper — always at the TOP */}
-      <div className="fixed top-0 left-0 right-0 z-50">
+      <div className="fixed top-2 left-0 right-0 z-50">
         <header
           className={`relative mx-auto transition-all duration-500 ease-out ${
             scrolled
-              ? 'max-w-3xl rounded-b-[42px] border-b border-x border-white/[0.08] bg-[#070D19]/60 backdrop-blur-xl shadow-2xl shadow-black/40'
+              ? 'max-w-4xl rounded-[42px] border-b border-x border-white/[0.08] bg-[#070D19]/60 backdrop-blur-xl shadow-2xl shadow-black/40'
               : 'max-w-full rounded-b-none border-b border-transparent bg-transparent'
           }`}
         >
@@ -105,15 +106,13 @@ export default function Navbar({ settings }: { settings?: any } = {}) {
               className="relative z-[80] flex items-center gap-2.5 transition-transform duration-300 hover:scale-[1.02]"
               onClick={() => setOpen(false)}
             >
-              {settings?.logo ? (
-                <img
-                  src={img(settings.logo)}
-                  alt={settings?.companyName || 'NetVerge'}
-                  className="h-8 max-w-[160px] object-contain"
-                />
-              ) : (
-                <NetVergeLogo variant="dark" />
-              )}
+              <img
+                src={LOGO_SRC}
+                alt={settings?.companyName || 'NetVerge'}
+                className={`w-auto max-w-[320px] object-contain transition-all duration-500 sm:max-w-[260px] ${
+                  scrolled ? 'h-10 sm:h-11' : 'h-16 sm:h-18'
+                }`}
+              />
             </Link>
 
             {/* Desktop Nav – Pill Style with Sliding Indicator */}
@@ -153,7 +152,7 @@ export default function Navbar({ settings }: { settings?: any } = {}) {
             <div className="flex items-center gap-3">
               <Link
                 href="/contact"
-                className="hidden md:inline-flex items-center gap-2 rounded-full bg-[#FF6B00] px-5 py-2 text-[13px] font-semibold text-white shadow-lg shadow-[#FF6B00]/25 transition-all duration-300 hover:bg-[#E55F00] hover:shadow-[#FF6B00]/40 hover:-translate-y-0.5 active:translate-y-0"
+                className="hidden md:inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-[#FF6B00] px-5 py-2 text-[13px] font-semibold text-white shadow-lg shadow-[#FF6B00]/25 transition-all duration-300 hover:bg-[#E55F00] hover:shadow-[#FF6B00]/40 hover:-translate-y-0.5 active:translate-y-0"
               >
                 Get in Touch
                 <svg
@@ -214,15 +213,11 @@ export default function Navbar({ settings }: { settings?: any } = {}) {
             onClick={() => setOpen(false)}
             className="flex items-center gap-2.5"
           >
-            {settings?.logo ? (
-              <img
-                src={img(settings.logo)}
-                alt={settings?.companyName || 'NetVerge'}
-                className="h-8 max-w-[140px] object-contain"
-              />
-            ) : (
-              <NetVergeLogo variant="dark" />
-            )}
+            <img
+              src={LOGO_SRC}
+              alt={settings?.companyName || 'NetVerge'}
+              className="h-11 max-w-[200px] object-contain"
+            />
           </Link>
 
           {/* Close icon — aligned to the right */}

@@ -187,6 +187,16 @@ export default async function Services() {
                     />
 
                     <div className="relative">
+                      {service.heroImage && (
+                        <div className="mb-5 overflow-hidden rounded-2xl border border-slate-100">
+                          <img
+                            src={img(service.heroImage)}
+                            alt={service.title}
+                            loading="lazy"
+                            className="h-40 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                        </div>
+                      )}
                       <div className="mb-6 flex items-start justify-between">
                         <div
                           className={`flex h-14 w-14 items-center justify-center rounded-2xl border transition-all duration-300 group-hover:scale-110 ${

@@ -11,7 +11,7 @@ export default function Page() {
     { key: 'description', label: 'Short description (shown on service cards)', type: 'textarea' },
     { key: 'items', label: 'What we offer (bullet points)', type: 'lines' },
 
-    { key: 'heroImage', label: 'Detail page banner / image', type: 'image' },
+    { key: 'heroImage', label: 'Service image (shown on service card + detail page)', type: 'image' },
     { key: 'tagline', label: 'Detail page tagline (under the title)', type: 'text' },
     { key: 'overview', label: 'Overview (leave a blank line between paragraphs)', type: 'textarea' },
     { key: 'benefits', label: 'Key benefits', type: 'objects', shape: TITLE_TEXT, addLabel: 'Add benefit' },

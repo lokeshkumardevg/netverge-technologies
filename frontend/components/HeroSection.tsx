@@ -546,6 +546,21 @@ export default function HeroSection({
         </div>
       </div>
 
+      {/* tagline in a glass card, bottom-right (desktop): outer keeps the tilt, middle fades in, inner floats */}
+      <div className="pointer-events-none absolute bottom-[4.5rem] right-6 z-20 hidden -rotate-[4deg] select-none lg:block xl:right-16">
+        <div style={{ animationDelay: '1700ms' }} className="hero-fade-up">
+          <div className="hx-float-c relative overflow-hidden rounded-2xl border border-white/20 bg-white/[0.08] px-7 py-4 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_16px_48px_rgba(0,0,0,0.4)] backdrop-blur-xl">
+            <span aria-hidden className="hx-sweep pointer-events-none absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+            <span className="relative block font-serif text-xl italic text-white drop-shadow-md">Innovative</span>
+            <span className="relative block font-serif text-xl italic text-white drop-shadow-md">Technology</span>
+            <span className="relative block font-serif text-xl italic text-white drop-shadow-md">Real Impact</span>
+            <svg viewBox="0 0 160 24" className="relative mx-auto mt-1 h-5 w-40" fill="none">
+              <path d="M4 18 Q80 -2 156 8" stroke="#FF6B00" strokeWidth="3" strokeLinecap="round" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
       {/* scroll cue */}
       <a
         href="#about"

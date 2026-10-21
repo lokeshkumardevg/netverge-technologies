@@ -4,7 +4,8 @@
  * NetVerge floating chatbot.
  * - Answers ONLY from the Company Profile PDF (via the backend /api/chatbot endpoints).
  * - Opens with ready-made question chips; tapping a chip returns the matching PDF answer.
- * - Fully responsive (full-screen sheet on phones), animated, keyboard accessible.
+ * - Fully responsive: floating window on desktop/tablet, full-screen sheet on phones
+ *   (portrait AND landscape), keyboard-aware, safe-area aware, touch friendly.
  * Mounted once in app/(site)/layout.tsx.
  */
 import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -37,6 +38,10 @@ const TIP_KEY = 'nv_chat_tip_v1';
 const MAX_LEN = 500;
 const TIMEOUT_MS = 15000;
 
+/** Phones (portrait) + short landscape screens (phones turned sideways) => full-screen sheet.
+ *  MUST stay in sync with the media query in ChatWidget.module.css */
+const MOBILE_QUERY = '(max-width: 520px), (max-height: 500px) and (orientation: landscape)';
+
 const ICONS: Record<string, ReactNode> = {
   building: <Building2 size={14} />, sparkles: <Sparkles size={14} />, badge: <BadgeCheck size={14} />, factory: <Factory size={14} />,
   layers: <Layers size={14} />, network: <Network size={14} />, shield: <ShieldCheck size={14} />, cloud: <Cloud size={14} />,
@@ -49,7 +54,25 @@ const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(
 const fmtTime = (t: number) => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const prefersReduced = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-const isMobile = () => typeof window !== 'undefined' && window.matchMedia?.('(max-width: 520px)').matches;
+const isMobile = () => typeof window !== 'undefined' && !!window.matchMedia?.(MOBILE_QUERY).matches;
+
+/** Reactive version – updates on rotate / resize / split-screen. */
+function useIsMobile() {
+  const [m, setM] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia(MOBILE_QUERY);
+    const upd = () => setM(mq.matches);
+    upd();
+    if (mq.addEventListener) mq.addEventListener('change', upd);
+    else mq.addListener(upd); // Safari < 14
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener('change', upd);
+      else mq.removeListener(upd);
+    };
+  }, []);
+  return m;
+}
 
 // ───────────────────────── rich text (safe: no dangerouslySetInnerHTML) ─────────────────────────
 const INLINE_RE = /(\*\*[^*]+\*\*|https?:\/\/[^\s)]*[\w/]|www\.[\w.-]*\w|[\w.+-]+@[\w-]+(?:\.[\w-]+)+|\+\d{2}\s?\d{10})/g;
@@ -221,6 +244,7 @@ export default function ChatWidget() {
   const [online, setOnline] = useState(true);
   const [tip, setTip] = useState(false);
   const [vv, setVv] = useState<{ h: number; top: number } | null>(null);
+  const mobile = useIsMobile();
 
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -312,21 +336,29 @@ export default function ChatWidget() {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeChat(); };
     window.addEventListener('keydown', onKey);
-    const lock = isMobile();
-    const prev = document.body.style.overflow;
-    if (lock) document.body.style.overflow = 'hidden';
-    return () => { window.removeEventListener('keydown', onKey); if (lock) document.body.style.overflow = prev; };
-  }, [open, closeChat]);
+    const html = document.documentElement;
+    const prevBody = document.body.style.overflow;
+    const prevHtml = html.style.overflow;
+    if (mobile) { document.body.style.overflow = 'hidden'; html.style.overflow = 'hidden'; }
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevBody;
+      html.style.overflow = prevHtml;
+    };
+  }, [open, mobile, closeChat]);
 
-  // Keep the input above the on-screen keyboard (iOS/Android)
+  // Keep the whole sheet inside the *visible* area (above the on-screen keyboard, iOS/Android)
   useEffect(() => {
-    if (!open || !isMobile() || !window.visualViewport) { setVv(null); return; }
+    if (!open || !mobile || !window.visualViewport) { setVv(null); return; }
     const vp = window.visualViewport;
-    const upd = () => setVv({ h: vp.height, top: vp.offsetTop });
+    const upd = () => {
+      setVv({ h: Math.round(vp.height), top: Math.round(vp.offsetTop) });
+      requestAnimationFrame(() => scrollDown(false));
+    };
     upd();
     vp.addEventListener('resize', upd); vp.addEventListener('scroll', upd);
     return () => { vp.removeEventListener('resize', upd); vp.removeEventListener('scroll', upd); setVv(null); };
-  }, [open]);
+  }, [open, mobile, scrollDown]);
 
   // ── sending
   const send = useCallback(async (p: Payload, opts?: { silent?: boolean }) => {
@@ -370,6 +402,8 @@ export default function ChatWidget() {
 
   const panelStyle = vv ? { height: vv.h, top: vv.top, bottom: 'auto' as const } : undefined;
   const topics = init?.suggestions || [];
+  // keyboard is up => hide the quick-topic strip + footer note so the chat keeps room to breathe
+  const kbOpen = !!vv && typeof window !== 'undefined' && vv.h < window.innerHeight - 120;
 
   return (
     <div className={`${s.root} ${open ? s.isOpen : ''}`}>
@@ -377,23 +411,23 @@ export default function ChatWidget() {
       {tip && !open && (
         <div className={s.tip} role="status" onClick={openChat}>
           Hi! 👋 Have a question? <b>Ask NetVerge Assistant</b>
-          <button className={s.tipClose} aria-label="Dismiss" onClick={(e) => { e.stopPropagation(); setTip(false); try { sessionStorage.setItem(TIP_KEY, '1'); } catch { /* ignore */ } }}><X size={13} /></button>
+          <button className={s.tipClose} aria-label="Dismiss" onClick={(e) => { e.stopPropagation(); setTip(false); try { sessionStorage.setItem(TIP_KEY, '1'); } catch { /* ignore */ } }}><X size={14} /></button>
         </div>
       )}
 
       {/* Chat window */}
       {open && (
-        <section className={`${s.panel} ${closing ? s.panelClosing : ''}`} style={panelStyle} role="dialog" aria-label="NetVerge chat assistant" aria-modal="false">
+        <section className={`${s.panel} ${closing ? s.panelClosing : ''}`} style={panelStyle} role="dialog" aria-label="NetVerge chat assistant" aria-modal={mobile}>
           <header className={s.header}>
             <div className={s.avatar}><Bot size={22} /><span className={`${s.status} ${online ? '' : s.statusOff}`} /></div>
             <div className={s.headText}>
               <h2 className={s.title}>NetVerge Assistant</h2>
-              <p className={s.subtitle}>{online ? 'Online · Answers from Company Profile 2026' : 'You are offline'}</p>
+              <p className={s.subtitle}>{online ? (mobile ? 'Online · Company Profile 2026' : 'Online · Answers from Company Profile 2026') : 'You are offline'}</p>
             </div>
             <div className={s.headBtns}>
-              <button className={`${s.iconBtn} ${s.spin}`} onClick={reset} aria-label="Restart conversation" title="Restart conversation"><RotateCcw size={17} /></button>
-              <button className={s.iconBtn} onClick={closeChat} aria-label="Minimize chat" title="Minimize"><Minus size={19} /></button>
-              <button className={s.iconBtn} onClick={closeChat} aria-label="Close chat" title="Close"><X size={19} /></button>
+              <button className={`${s.iconBtn} ${s.spin}`} onClick={reset} aria-label="Restart conversation" title="Restart conversation"><RotateCcw size={18} /></button>
+              {!mobile && <button className={s.iconBtn} onClick={closeChat} aria-label="Minimize chat" title="Minimize"><Minus size={19} /></button>}
+              <button className={s.iconBtn} onClick={closeChat} aria-label="Close chat" title="Close"><X size={20} /></button>
             </div>
           </header>
 
@@ -420,7 +454,7 @@ export default function ChatWidget() {
             )}
           </div>
 
-          {topics.length > 0 && (
+          {topics.length > 0 && !kbOpen && (
             <div className={s.strip}>
               <div className={s.stripInner} role="group" aria-label="Quick topics">
                 {topics.map((t) => <button key={t.id} className={s.stripChip} disabled={busy} onClick={() => pick(t)}>{t.label}</button>)}
@@ -436,30 +470,36 @@ export default function ChatWidget() {
                 value={input}
                 maxLength={MAX_LEN}
                 onChange={(e) => setInput(e.target.value)}
+                onFocus={() => { if (isMobile()) window.setTimeout(() => scrollDown(false), 300); }}
                 placeholder="Type your question…"
                 aria-label="Type your question"
                 autoComplete="off"
+                autoCorrect="off"
                 enterKeyHint="send"
               />
               {input.length > 400 && <span className={`${s.count} ${input.length >= MAX_LEN ? s.countWarn : ''}`}>{input.length}/{MAX_LEN}</span>}
-              <button className={s.send} type="submit" disabled={!input.trim() || busy} aria-label="Send message"><Send size={17} /></button>
+              <button className={s.send} type="submit" disabled={!input.trim() || busy} aria-label="Send message"><Send size={18} /></button>
             </form>
-            <p className={s.note}>Answers are based on the <b>NetVerge Company Profile 2026</b></p>
+            {!kbOpen && <p className={s.note}>Answers are based on the <b>NetVerge Company Profile 2026</b></p>}
           </div>
         </section>
       )}
 
       {/* Floating launcher */}
-      <button
-        className={`${s.launcher} ${open && isMobile() ? s.launcherHidden : ''}`}
-        onClick={() => (open ? closeChat() : openChat())}
-        aria-label={open ? 'Close chat' : 'Open chat'}
-        aria-expanded={open}
-      >
-        <MessageCircle className={`${s.launcherIcon} ${s.iconChat}`} size={27} />
-        <X className={`${s.launcherIcon} ${s.iconClose}`} size={27} />
-        {!open && <span className={s.badge} />}
-      </button>
+      {/* On phones the chat is a full-screen sheet with its own X in the header,
+          so the launcher is removed entirely while the chat is open (it used to sit on top of Send). */}
+      {!(open && mobile) && (
+        <button
+          className={s.launcher}
+          onClick={() => (open ? closeChat() : openChat())}
+          aria-label={open ? 'Close chat' : 'Open chat'}
+          aria-expanded={open}
+        >
+          <MessageCircle className={`${s.launcherIcon} ${s.iconChat}`} size={27} />
+          <X className={`${s.launcherIcon} ${s.iconClose}`} size={27} />
+          {!open && <span className={s.badge} />}
+        </button>
+      )}
     </div>
   );
 }

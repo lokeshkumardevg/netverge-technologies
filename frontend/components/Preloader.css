@@ -1,0 +1,161 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@800&display=swap");
+
+.nv-preloader {
+  --nv-orange: #ff850b;
+  --nv-size: clamp(80px, 15vw, 170px); /* icon size */
+
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background: var(--nv-bg, #0d0d10);
+  transition: opacity 0.7s ease, visibility 0.7s;
+}
+.nv-preloader *,
+.nv-preloader *::before,
+.nv-preloader *::after {
+  box-sizing: border-box;
+}
+/* exit: background fade + logo zoom in */
+.nv-preloader[data-phase="exit"] {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.9s ease 0.2s, visibility 0s linear 1.1s;
+}
+
+.nv-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 1.1s cubic-bezier(0.7, 0, 0.3, 1),
+    opacity 0.8s ease;
+}
+.nv-preloader[data-phase="exit"] .nv-logo {
+  transform: scale(6);
+  opacity: 0;
+}
+
+.nv-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- wordmark ---------- */
+.nv-wordmark {
+  position: relative;
+  z-index: 1;
+  width: 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: flex-end; /* anchored to the icon side */
+  padding: 0.18em 0;
+  margin: -0.18em 0;
+  font-family: "Playfair Display", Georgia, serif;
+  font-weight: 800;
+  font-size: calc(var(--nv-size) * 0.78);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--nv-text, #fff);
+  transition: width 1.1s cubic-bezier(0.65, 0, 0.2, 1);
+}
+.nv-wordmark-inner {
+  display: inline-block;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(60%);
+  transition: transform 1.1s cubic-bezier(0.65, 0, 0.2, 1),
+    opacity 0.7s ease 0.15s;
+}
+.nv-v {
+  color: var(--nv-orange);
+}
+.nv-preloader[data-phase="reveal"] .nv-wordmark-inner,
+.nv-preloader[data-phase="exit"] .nv-wordmark-inner {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- icon ---------- */
+.nv-icon {
+  position: relative;
+  z-index: 2;
+  flex: none;
+  width: var(--nv-size);
+  height: var(--nv-size);
+}
+.nv-icon svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.nv-roof {
+  stroke: var(--nv-orange);
+}
+.nv-ink-stroke {
+  stroke: var(--nv-ink, #f2f2f2);
+}
+.nv-ink-fill {
+  fill: var(--nv-ink, #f2f2f2);
+}
+.nv-ink-fill .nv-white {
+  fill: #fff;
+}
+
+/* creation: every path uses pathLength="1" */
+.nv-draw {
+  stroke-dasharray: 1 2;
+  stroke-dashoffset: 1.02;
+  animation: nv-draw calc(var(--t, 0.8s) * var(--nv-k, 1.5))
+    cubic-bezier(0.5, 0, 0.2, 1) calc(var(--d, 0s) * var(--nv-k, 1.5)) forwards;
+}
+@keyframes nv-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.nv-pop {
+  opacity: 0;
+  transform: scale(0);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: nv-pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1)
+    calc(var(--d, 0s) * var(--nv-k, 1.5)) forwards;
+}
+@keyframes nv-pop {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.nv-hole {
+  opacity: 0;
+  animation: nv-fade 0.4s ease calc(var(--d, 0s) * var(--nv-k, 1.5)) forwards;
+}
+@keyframes nv-fade {
+  to {
+    opacity: 0.85;
+  }
+}
+
+/* glow pulse when the icon is complete */
+.nv-preloader[data-phase="pulse"] .nv-icon svg {
+  animation: nv-pulse 0.7s ease;
+}
+@keyframes nv-pulse {
+  50% {
+    filter: drop-shadow(0 0 16px rgba(255, 133, 11, 0.7));
+    transform: scale(1.05);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-wordmark,
+  .nv-wordmark-inner {
+    transition-duration: 0.01s;
+  }
+}

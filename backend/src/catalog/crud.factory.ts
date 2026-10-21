@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Put, Query, Type, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Put, Query, Type, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -29,6 +29,8 @@ export function createCrudController(path: string, modelName: string, opts: { sl
 
     @UseGuards(JwtAuthGuard) @Patch('admin/reorder')
     async reorder(@Body() body: { ids: string[] }) {
+      if (!Array.isArray(body?.ids)) throw new BadRequestException('ids must be an array');
+      body.ids.forEach(assertId);
       await Promise.all(body.ids.map((id, i) => this.model.updateOne({ _id: id }, { order: i })));
       return { ok: true };
     }
@@ -58,6 +60,7 @@ export function createCrudController(path: string, modelName: string, opts: { sl
 
     @UseGuards(JwtAuthGuard) @Post()
     async create(@Body() body: Record<string, any>) {
+      for (const k of ['_id', '__v', 'createdAt', 'updatedAt']) delete body[k];
       if (opts.slugFrom) body.slug = await this.uniqueSlug(body.slug || body[opts.slugFrom]);
       return this.model.create(body);
     }
@@ -65,6 +68,7 @@ export function createCrudController(path: string, modelName: string, opts: { sl
     @UseGuards(JwtAuthGuard) @Put(':id')
     async update(@Param('id') id: string, @Body() body: Record<string, any>) {
       assertId(id);
+      for (const k of ['_id', '__v', 'createdAt', 'updatedAt']) delete body[k];
       if (opts.slugFrom) {
         if (body.slug) body.slug = await this.uniqueSlug(body.slug, id);
         else if ('slug' in body || body[opts.slugFrom]) body.slug = await this.uniqueSlug(body[opts.slugFrom] || (await this.model.findById(id).lean())?.[opts.slugFrom], id);

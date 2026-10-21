@@ -248,3 +248,26 @@ html { scroll-behavior: smooth; }
 .hx-flicker   { animation: hx-flicker 3.1s linear infinite; }
 .hx-lightpass { animation: hx-lightpass 9s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .hx-glow, .hx-flicker, .hx-lightpass { animation: none !important; } }
+
+
+/* page entrance after preloader */
+@keyframes nv-rise {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+html.nv-ready main {
+  animation: nv-rise 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.25s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.nv-ready main {
+    animation: none;
+  }
+}

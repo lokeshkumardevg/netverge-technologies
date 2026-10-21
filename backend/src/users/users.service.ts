@@ -1,4 +1,4 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { ConflictException, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { Model } from 'mongoose';
@@ -22,6 +22,7 @@ export class UsersService implements OnApplicationBootstrap {
   findById(id: string) { return this.model.findById(id); }
   list() { return this.model.find().select('-password').lean(); }
   async create(d: { name: string; email: string; password: string; role?: string }) {
+    if (await this.model.exists({ email: d.email.toLowerCase() })) throw new ConflictException('A user with this email already exists');
     const u = await this.model.create({ ...d, password: await bcrypt.hash(d.password, 10) });
     return { _id: u._id, name: u.name, email: u.email, role: u.role };
   }

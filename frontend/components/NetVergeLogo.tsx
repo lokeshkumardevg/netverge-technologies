@@ -15,7 +15,7 @@ export default function NetVergeLogo({
   // variant="dark" means on a dark/black background -> use white logo
   // variant="light" means on a light/white background -> use dark logo
   const logoSrc = isDark
-    ? '/images/netverge-logo-white.png'
+    ? '/logo.png'
     : '/images/netverge-logo-dark.png';
 
   return (
