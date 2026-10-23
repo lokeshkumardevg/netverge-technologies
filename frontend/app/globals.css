@@ -271,3 +271,12 @@ html.nv-ready main {
     animation: none;
   }
 }
+
+/* ───────── Hold landing-page animations until the preloader is over ─────────
+   <Preloader /> adds .nv-loaded to <html> when it finishes; until then every
+   animation inside the site's <main> stays paused at its first frame. */
+html:not(.nv-loaded) .nv-site-main *,
+html:not(.nv-loaded) .nv-site-main *::before,
+html:not(.nv-loaded) .nv-site-main *::after {
+  animation-play-state: paused !important;
+}

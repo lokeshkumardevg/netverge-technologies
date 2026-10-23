@@ -46,6 +46,17 @@ const NODES = [
  *  - textColor  : colour of "Net" / "erge"
  *  - onFinish   : called when the preloader has fully faded out
  */
+// ms after the exit fade begins when landing-page animations start.
+// 0 = at the very start of the fade-out. Increase to start later, e.g. 300.
+const START_PAGE_ANIM_AFTER_EXIT_MS = 0;
+
+// Tells the CSS that the preloader is over, so landing-page animations can start.
+function markPageLoaded() {
+  if (typeof document !== "undefined") {
+    document.documentElement.classList.add("nv-loaded");
+  }
+}
+
 export default function Preloader({
   speed = 1.5,
   hold = 1400,
@@ -68,6 +79,7 @@ export default function Preloader({
       try {
         if (sessionStorage.getItem("nv-preloader-seen")) {
           setPhase("done");
+          markPageLoaded();
           finishRef.current?.();
           return;
         }
@@ -92,9 +104,15 @@ export default function Preloader({
         if (textRef.current) setTextWidth(textRef.current.offsetWidth);
         setPhase("reveal");
       }, revealAt),
-      setTimeout(() => setPhase("exit"), exitAt),
+      // start landing-page animations as the preloader begins fading out,
+      // so they are already moving while it disappears (no stall afterwards)
+      setTimeout(() => {
+        setPhase("exit");
+        markPageLoaded();
+      }, exitAt + START_PAGE_ANIM_AFTER_EXIT_MS),
       setTimeout(() => {
         setPhase("done");
+        markPageLoaded();
         finishRef.current?.();
       }, doneAt),
     ];

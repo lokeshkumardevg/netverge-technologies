@@ -3,6 +3,7 @@ import Footer from '@/components/Footer';
 import { get } from '@/lib/api';
 import Preloader from "@/components/Preloader";
 import ChatWidget from '@/components/chatbot/ChatWidget'; // [CHATBOT]
+import CookieConsent from '@/components/CookieConsent';
 
 
 export const dynamic = 'force-dynamic';
@@ -13,9 +14,10 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     <>
       <Preloader />
       <Navbar settings={settings} />
-      <main>{children}</main>
+      <main className="nv-site-main">{children}</main>
       <Footer settings={settings} services={services} />
       <ChatWidget /> {/* [CHATBOT] */}
+      <CookieConsent />
     </>
   );
 }

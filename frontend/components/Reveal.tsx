@@ -21,17 +21,41 @@ export default function Reveal({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          io.disconnect(); // animate only once
+
+    let io: IntersectionObserver | undefined;
+    let mo: MutationObserver | undefined;
+
+    const startObserving = () => {
+      io = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setVisible(true);
+            io?.disconnect(); // animate only once
+          }
+        },
+        { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
+      );
+      io.observe(el);
+    };
+
+    // Wait for the preloader to finish (<html class="nv-loaded">) before animating
+    const root = document.documentElement;
+    if (root.classList.contains('nv-loaded')) {
+      startObserving();
+    } else {
+      mo = new MutationObserver(() => {
+        if (root.classList.contains('nv-loaded')) {
+          mo?.disconnect();
+          startObserving();
         }
-      },
-      { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
-    );
-    io.observe(el);
-    return () => io.disconnect();
+      });
+      mo.observe(root, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    return () => {
+      io?.disconnect();
+      mo?.disconnect();
+    };
   }, []);
 
   const hidden =

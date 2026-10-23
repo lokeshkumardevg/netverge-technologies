@@ -30,7 +30,8 @@ export default function Footer({
   const email = s?.email || 'vineet.mohan@netverge.tech';
   const address =
     s?.address ||
-    'Plot No 502, Tower B 2, Tulip Violet, Badshahpur, Sector-69, Gurugram, Haryana, 122101, India';
+    `Unit No 823, Tower A, Spaze I Tech Park, Sector 49, Sohna Road, Gurgaon 122018
+Registered Address - Tower B22 501, Tulip Voilet, Sector 69, Gurgaon 122101`;
   const footerText =
     s?.footerText ||
     'Building secure, scalable and intelligent technology solutions for a better tomorrow.';
@@ -52,7 +53,7 @@ export default function Footer({
               <img
                 src={img(s.logo)}
                 alt={s?.companyName || 'NetVerge'}
-                className="h-8 max-w-[180px] object-contain"
+                className="h-16 object-contain"
               />
             ) : (
               <NetVergeLogo variant="dark" />

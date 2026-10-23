@@ -1,4 +1,4 @@
-// File: /Users/mac/git_repo/netverge-technologies_backup/netverge-technologies/frontend/app/(site)/contact/page.tsx
+// File: /Users/mac/git_repo/netverge-technologies/frontend/app/(site)/contact/page.tsx
 import * as entry from '../../../../../app/(site)/contact/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

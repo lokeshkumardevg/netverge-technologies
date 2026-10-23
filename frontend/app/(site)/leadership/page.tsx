@@ -15,31 +15,7 @@ const defaultLeaders = [
     photo: '/vinit.jpeg',
     bio: '25+ Years of Experience in IT, Telecom, Retail, Healthcare, Manufacturing, and more.',
     linkedin: 'https://www.linkedin.com/in/vineet-mohan-98a0041a/',
-  },
-  {
-    _id: 'l2',
-    name: 'Ms. Neha Sharma',
-    designation: 'Operations Head',
-    photo: '/images/neha.jpg',
-    bio: 'Expert in process management, client relations and business growth.',
-    linkedin: '#',
-  },
-  {
-    _id: 'l3',
-    name: 'Mr. Rahul Verma',
-    designation: 'CTO',
-    photo: '/images/rahul.jpg',
-    bio: 'Specialist in cloud architecture, cybersecurity and enterprise solutions.',
-    linkedin: '#',
-  },
-  {
-    _id: 'l4',
-    name: 'Ms. Pooja Singh',
-    designation: 'HR Head',
-    photo: '/images/pooja.jpg',
-    bio: 'Focused on building strong teams and a positive work culture.',
-    linkedin: '#',
-  },
+  }
 ];
 
 export default async function Leadership() {

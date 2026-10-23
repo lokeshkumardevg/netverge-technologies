@@ -1,6 +1,7 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/admin/login/page": "app/admin/login/page.js",
+  "/(site)/page": "app/(site)/page.js",
+  "/(site)/services/page": "app/(site)/services/page.js",
   "/(site)/contact/page": "app/(site)/contact/page.js",
-  "/(site)/page": "app/(site)/page.js"
+  "/(site)/leadership/page": "app/(site)/leadership/page.js",
+  "/(site)/about/page": "app/(site)/about/page.js"
 }
